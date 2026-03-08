@@ -42,7 +42,12 @@
 	"file.blockreplace": {
 		"body": [
 			"file.blockreplace:",
-			"$0"
+				"  - name: ${1:/etc/example.conf}",
+				"  - marker_start: ${2:#-- start managed block --}",
+				"  - marker_end: ${3:#-- end managed block --}",
+				"  - content: |",
+				"      ${4:managed content}",
+				"$0"
 		],
 		"prefix": "file.blockreplace:",
 		"description": "file.blockreplace:"
@@ -106,7 +111,12 @@
 	"file.managed": {
 		"body": [
 			"file.managed:",
-			"\t- $0"
+				"  - name: ${1:/etc/example.conf}",
+				"  - source: ${2:salt://path/to/example.conf}",
+				"  - user: ${3:root}",
+				"  - group: ${4:root}",
+				"  - mode: '${5:0644}'",
+				"$0"
 		],
 		"prefix": "file.managed:",
 		"description": "file.managed:"
@@ -130,7 +140,12 @@
 	"file.recurse": {
 		"body": [
 			"file.recurse:",
-			"\t- source: ${1:source_directory}",
+				"  - name: ${1:/srv/app}",
+				"  - source: ${2:salt://app/files}",
+				"  - user: ${3:root}",
+				"  - group: ${4:root}",
+				"  - file_mode: '${5:0644}'",
+				"  - dir_mode: '${6:0755}'",
 			"$0"
 		],
 		"prefix": "file.recurse:",
@@ -147,7 +162,7 @@
 	"file.absent": {
 		"body": [
 			"file.absent:",
-			"\t- name: ${1:unique_string}",
+				"  - name: ${1:/path/to/remove}",
 			"$0"
 		],
 		"prefix": "file.absent:",
@@ -164,10 +179,11 @@
 	"file.directory": {
 		"body": [
 			"file.directory:",
-			"\t- user: ${1:root}",
-			"\t- group: ${2:root}",
-			"\t- dir_mode: ${3:755}",
-			"\t- file_mode: ${4:644}",
+				"  - name: ${1:/srv/app}",
+				"  - user: ${2:root}",
+				"  - group: ${3:root}",
+				"  - dir_mode: '${4:0755}'",
+				"  - file_mode: '${5:0644}'",
 			"$0"
 		],
 		"prefix": "file.directory:",
@@ -176,10 +192,11 @@
 	"file.managed (salt source)": {
 		"body": [
 			"file.managed:",
-			"\t- source: salt://${1:source}",
-			"\t- user: ${2:root}",
-			"\t- group: ${3:root}",
-			"\t- mode: ${4:644}",
+				"  - name: ${1:/etc/example.conf}",
+				"  - source: salt://${2:path/to/source}",
+				"  - user: ${3:root}",
+				"  - group: ${4:root}",
+				"  - mode: '${5:0644}'",
 			"$0"
 		],
 		"prefix": "file.managed:",
@@ -188,6 +205,8 @@
 	"file.copy": {
 		"body": [
 			"file.copy:",
+				"  - name: ${1:/path/to/destination}",
+				"  - source: ${2:/path/to/source}",
 			"$0"
 		],
 		"prefix": "file.copy:",

@@ -4,12 +4,12 @@
             "sctest"
         ],
         "body": [
-            "${1:testid}:",
+	            "${1:test_id}:",
             "  module_and_function: ${2:test.echo}",
             "  args:",
-            "    - should return",
-            "  assertion: ${3|assertEqual,assertNotEqual,assertTrue,assertFalse,assertIn,assertNotIn,assertGreater,assertGreaterEqual,assertLess,assertLessEqual,assertEmpty,assertNotEmpty|}",
-            "  expected_return: ${4:should return}",
+	            "    - ${3:should return}",
+	            "  assertion: ${4|assertEqual,assertNotEqual,assertTrue,assertFalse,assertIn,assertNotIn,assertGreater,assertGreaterEqual,assertLess,assertLessEqual,assertEmpty,assertNotEmpty|}",
+	            "  expected_return: ${5:should return}",
             "$0"
         ],
         "description": "basic saltcheck test"
@@ -19,19 +19,19 @@
             "sctest"
         ],
         "body": [
-            "${1:testid}:",
+	            "${1:test_id}:",
             "  module_and_function: ${2:test.arg}",
             "  args:",
-            "    - should return",
+	            "    - ${3:should return}",
             "  kwargs:",
-            "    a: value1",
+	            "    a: ${4:value1}",
             "  assertions:",
-            "    - assertion: ${3|assertEqual,assertNotEqual,assertTrue,assertFalse,assertIn,assertNotIn,assertGreater,assertGreaterEqual,assertLess,assertLessEqual,assertEmpty,assertNotEmpty|}",
-            "      assertion_section: ${4:kwargs:a}",
-            "      expected_return: ${5:value1}",
-            "    - assertion: ${6|assertEqual,assertNotEqual,assertTrue,assertFalse,assertIn,assertNotIn,assertGreater,assertGreaterEqual,assertLess,assertLessEqual,assertEmpty,assertNotEmpty|}",
-            "      assertion_section: ${7:args}",
-            "      expected_return: ${8:should return}",
+	            "    - assertion: ${5|assertEqual,assertNotEqual,assertTrue,assertFalse,assertIn,assertNotIn,assertGreater,assertGreaterEqual,assertLess,assertLessEqual,assertEmpty,assertNotEmpty|}",
+	            "      assertion_section: ${6:kwargs:a}",
+	            "      expected_return: ${7:value1}",
+	            "    - assertion: ${8|assertEqual,assertNotEqual,assertTrue,assertFalse,assertIn,assertNotIn,assertGreater,assertGreaterEqual,assertLess,assertLessEqual,assertEmpty,assertNotEmpty|}",
+	            "      assertion_section: ${9:args}",
+	            "      expected_return: ${10:should return}",
             "$0"
         ],
         "description": "saltcheck test with multiple assertions"

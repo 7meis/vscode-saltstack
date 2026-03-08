@@ -3,6 +3,7 @@
 		"prefix": "user.absent:",
 		"body": [
 			"user.absent:",
+			"  - name: ${1:username}",
 			"$0"
 		],
 		"description": "user.absent:"
@@ -19,6 +20,10 @@
 		"prefix": "user.present:",
 		"body": [
 			"user.present:",
+			"  - name: ${1:username}",
+			"  - fullname: ${2:User Name}",
+			"  - shell: ${3:/bin/bash}",
+			"  - home: ${4:/home/username}",
 			"$0"
 		],
 		"description": "user.present:"

@@ -2,6 +2,8 @@
 	"service.dead": {
 		"body": [
 			"service.dead:",
+			"  - name: ${1:service-name}",
+			"  - enable: false",
 			"$0"
 		],
 		"prefix": "service.dead:",
@@ -10,6 +12,8 @@
 	"service.running": {
 		"body": [
 			"service.running:",
+			"  - name: ${1:service-name}",
+			"  - enable: ${2|true,false|}",
 			"$0"
 		],
 		"prefix": "service.running:",
@@ -18,6 +22,7 @@
 	"service.disabled": {
 		"body": [
 			"service.disabled:",
+			"  - name: ${1:service-name}",
 			"$0"
 		],
 		"prefix": "service.disabled:",
@@ -26,6 +31,7 @@
 	"service.unmasked": {
 		"body": [
 			"service.unmasked:",
+			"  - name: ${1:service-name}",
 			"$0"
 		],
 		"prefix": "service.unmasked:",
@@ -34,6 +40,7 @@
 	"service.enabled": {
 		"body": [
 			"service.enabled:",
+			"  - name: ${1:service-name}",
 			"$0"
 		],
 		"prefix": "service.enabled:",
@@ -42,6 +49,7 @@
 	"service.masked": {
 		"body": [
 			"service.masked:",
+			"  - name: ${1:service-name}",
 			"$0"
 		],
 		"prefix": "service.masked:",

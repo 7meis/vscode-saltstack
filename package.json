@@ -1,27 +1,51 @@
 {
 	"name": "saltstack",
-	"version": "0.0.9",
+	"version": "0.1.1",
 	"publisher": "korekontrol",
 	"author": {
-		"name": "Marek Obuchowicz"
+		"name": "Simon Meister"
 	},
 	"license": "MIT",
 	"icon": "icon.png",
-	"description": "SaltStack jinja template language support",
+	"description": "Syntax highlighting and snippets for SaltStack SLS, Saltcheck, and Jinja templates",
 	"displayName": "SaltStack",
+	"homepage": "https://github.com/WagnerAG/vscode-saltstack#readme",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/korekontrol/vscode-saltstack.git"
+		"url": "https://github.com/WagnerAG/vscode-saltstack.git"
 	},
 	"bugs": {
-		"url": "https://github.com/korekontrol/vscode-saltstack/issues"
+		"url": "https://github.com/WagnerAG/vscode-saltstack/issues"
 	},
+	"keywords": [
+		"salt",
+		"saltstack",
+		"sls",
+		"saltcheck",
+		"jinja",
+		"yaml"
+	],
 	"categories": [
 		"Programming Languages",
 		"Snippets"
 	],
 	"engines": {
-		"vscode": "^1.19.0"
+		"vscode": "^1.74.0"
+	},
+	"files": [
+		"CHANGELOG.md",
+		"LICENSE",
+		"README.md",
+		"icon.png",
+		"jinja.configuration.json",
+		"syntaxes/**",
+		"snippets/**"
+	],
+	"scripts": {
+		"validate": "node ./scripts/validate-extension.mjs",
+		"test": "npm run validate",
+		"package:local": "npx --yes @vscode/vsce package",
+		"package:ci": "npm run validate && npx --yes @vscode/vsce package"
 	},
 	"contributes": {
 		"languages": [
@@ -29,12 +53,21 @@
 				"id": "sls",
 				"aliases": [
 					"SaltStack",
+					"Salt SLS",
 					"salt",
-					"saltcheck",
 					"pillar"
 				],
 				"extensions": [
-					".sls",
+					".sls"
+				],
+				"configuration": "./jinja.configuration.json"
+			},
+			{
+				"id": "saltcheck",
+				"aliases": [
+					"Saltcheck"
+				],
+				"extensions": [
 					".tst"
 				],
 				"configuration": "./jinja.configuration.json"
@@ -42,8 +75,9 @@
 			{
 				"id": "jinja",
 				"aliases": [
-					"j2",
-					"jinja2"
+					"Jinja",
+					"Jinja2",
+					"j2"
 				],
 				"extensions": [
 					".jinja",
@@ -61,12 +95,23 @@
 			{
 				"language": "sls",
 				"scopeName": "text.yaml.jinja",
-				"path": "./syntaxes/sls.json"
+					"path": "./syntaxes/sls.json",
+					"embeddedLanguages": {
+						"source.python": "python"
+					}
+				},
+				{
+					"language": "saltcheck",
+					"scopeName": "text.yaml.jinja",
+						"path": "./syntaxes/sls.json",
+						"embeddedLanguages": {
+							"source.python": "python"
+						}
 			}
 		],
 		"snippets": [
 			{
-				"language": "tst",
+					"language": "saltcheck",
 				"path": "./snippets/saltcheck.json"
 			},
 			{

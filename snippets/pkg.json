@@ -2,6 +2,7 @@
 	"pkg.downloaded": {
 		"body": [
 			"pkg.downloaded:",
+			"  - name: ${1:package-name}",
 			"$0"
 		],
 		"prefix": "pkg.downloaded:",
@@ -10,6 +11,7 @@
 	"pkg.group_installed": {
 		"body": [
 			"pkg.group_installed:",
+			"  - name: ${1:package-group}",
 			"$0"
 		],
 		"prefix": "pkg.group_installed:",
@@ -34,6 +36,8 @@
 	"pkg.latest": {
 		"body": [
 			"pkg.latest:",
+			"  - name: ${1:package-name}",
+			"  - refresh: ${2|false,true|}",
 			"$0"
 		],
 		"prefix": "pkg.latest:",
@@ -66,6 +70,7 @@
 	"pkg.uptodate": {
 		"body": [
 			"pkg.uptodate:",
+			"  - refresh: ${1|false,true|}",
 			"$0"
 		],
 		"prefix": "pkg.uptodate:",
@@ -82,6 +87,7 @@
 	"pkg.purged": {
 		"body": [
 			"pkg.purged:",
+			"  - name: ${1:package-name}",
 			"$0"
 		],
 		"prefix": "pkg.purged:",
@@ -98,6 +104,7 @@
 	"pkg.removed": {
 		"body": [
 			"pkg.removed:",
+			"  - name: ${1:package-name}",
 			"$0"
 		],
 		"prefix": "pkg.removed:",
@@ -106,6 +113,8 @@
 	"pkg.installed": {
 		"body": [
 			"pkg.installed:",
+			"  - name: ${1:package-name}",
+			"  - refresh: ${2|false,true|}",
 			"$0"
 		],
 		"prefix": "pkg.installed:",

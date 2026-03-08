@@ -1,95 +1,140 @@
 # SaltStack extension for Visual Studio Code
 
-This extension adds language colorization support for the SaltStack template language to VS Code.
-The language is a yaml with Jinja2 templating.
+This extension adds syntax highlighting and snippet support for SaltStack SLS files, Saltcheck tests, and standalone Jinja templates in VS Code.
 
 ![IDE](https://raw.githubusercontent.com/korekontrol/vscode-saltstack/master/example.png)
 
-## Using the extension
+## Features
 
-First, you will need to install Visual Studio Code `1.19.0` or higher. In the command palette (`cmd-shift-p`) select `Install Extension` and choose `SaltStack`.
+- syntax highlighting for Salt SLS (`.sls`)
+- syntax highlighting for Saltcheck (`.tst`)
+- syntax highlighting for Jinja templates (`.jinja`, `.j2`)
+- Salt state snippets for common modules and functions
+- Saltcheck snippets via the `sctest` prefix
+- Jinja-aware bracket and comment configuration
 
-### Autocompletion
+## Supported languages
 
-#### Salt states
+| Language | Files |
+| --- | --- |
+| Salt SLS | `.sls` |
+| Saltcheck | `.tst` |
+| Jinja | `.jinja`, `.j2` |
 
-When writing Salt states, pressing ctrl+space will offer to autocomplete state functions and some stanzas.
+## Usage
 
-Example:
+### Salt state snippets
+
+In a `.sls` file, type part of a state function and trigger suggestions with `Ctrl+Space` (or `Trigger Suggest` from the command palette).
+
+Examples:
+
+- `test.` suggests available `test.*` state functions
+- `file.managed:` inserts a more complete managed-file skeleton
+- `service.running:` inserts a service state skeleton
+
+### Saltcheck snippets
+
+In a `.tst` file, type `sctest` and trigger suggestions to insert a Saltcheck test template.
+
+## Local development
+
+### Voraussetzungen
+
+- VS Code `1.74.0` oder neuer
+- Node.js `18+`
+- npm
+
+### Extension lokal starten
+
+1. Repository in VS Code öffnen.
+2. Im Terminal `npm run validate` ausführen.
+3. `F5` drücken und die Launch-Konfiguration `Launch Extension` starten.
+4. Im neuen Extension-Host-Fenster die Beispiel-Dateien unter `examples/` öffnen.
+
+### Manuell testen
+
+Mit den Dateien in `examples/` kannst du schnell prüfen, ob die Extension korrekt funktioniert:
+
+1. `examples/example.sls`
+   - Sprache sollte als SaltStack/SLS erkannt werden
+   - `file.managed:` und `service.running:` sollten gute Snippets anbieten
+2. `examples/example.tst`
+   - Sprache sollte als Saltcheck erkannt werden
+   - `sctest` sollte Saltcheck-Vorlagen anbieten
+3. `examples/example.j2`
+   - Jinja-Tags und Variablen sollten hervorgehoben sein
+   - Jinja-Klammerpaare sollten sauber ergänzt werden
+
+### Lokales VSIX bauen
+
+Ein lokales Paket kannst du so erzeugen:
+
+```bash
+npm run package:local
 ```
-some_id:
-  test.<ctrl+space>
+
+Optional mit eigener Zieldatei:
+
+```bash
+npm run package:local -- -o saltstack-local.vsix
 ```
 
-Results in:
-```
-some_id:
-  test.+-----------------------+
-       |check_pillar           |
-       |configurable_test_state|
-       |fail_with_changes      |
-       |fail_without_changes   |
-       |nop                    |
-       |show_notification      |
-       |succeed_with_changes   |
-       |succeed_without_changes|
-       +-----------------------+
+### Lokales VSIX installieren
 
-```
+Per VS Code UI:
 
-Full state modules can also be completed:
-```
-some_other_id:
-  test.configurable_test_state:<ctrl+space>
+1. Extensions-Ansicht öffnen
+2. `...` Menü wählen
+3. `Install from VSIX...`
+4. das erzeugte `.vsix` auswählen
+
+Oder per CLI:
+
+```bash
+code --install-extension saltstack-local.vsix
 ```
 
-Results in:
-```
-some_other_id:
-  test.conffigurable_test_state:
-    - name: _unique_string_
-    - changes: True
-    - result: True
-    - comment: ''
+## Validierung
+
+Das Projekt enthält einen lokalen Validator, der u. a. prüft:
+
+- dass alle referenzierten Snippet- und Grammar-Dateien existieren
+- dass alle JSON-Dateien parsebar sind
+- dass Snippets auf gültige Language-IDs zeigen
+- dass `.sls` und `.tst` korrekt verdrahtet sind
+
+Ausführen mit:
+
+```bash
+npm run validate
 ```
 
-#### Saltcheck
+## Snippets aktualisieren
 
-Saltcheck tests (.tst files) can also be autocompleted with the keyword sctest<ctrl+space>
+`generate_snippets.py` kann neue Salt-State-Funktionen in Snippet-Dateien übernehmen. Dafür wird eine funktionierende lokale Salt-Umgebung benötigt.
 
-Example:
-```
-_testid_:
-  module_and_function: _test.echo_
-  args:
-    - should return
-  assertion: _assertTrue_
-  expected_return: _should return_
-```
+Der Generator ergänzt fehlende State-Funktionen, ohne bereits manuell verbesserte Snippets zu überschreiben.
+
+## CI / Publishing
+
+Die Jenkins-Pipeline validiert das Projekt und baut anschließend ein `.vsix`-Paket. Das Publishing in den Marketplace bleibt ein manueller Freigabeschritt.
 
 ## Contributing
 
-If you are interested in making this extension better, I will gladly take pull requests that expand it to add intellisense, hovers and validators. If you're not familiar with working on Visual Studio Code extensions, check out the VS Code extenders documentation at
-https://code.visualstudio.com/docs.
+Pull Requests sind willkommen — besonders für:
 
-To get started on the extension...
-
-1. Go to the Debug viewlet and select `Launch Extension` then hit run (`F5`). This will launch a second instance of Code with the extension from the first window loaded.
-
-2. As you make changes, you can also reload (`Ctrl+R` or `Cmd+R` on Mac) the second Code window to load any changes.
-
-If you have a previous release of the extension installed and you perform these steps, Code will temporarily override the locally installed version instead for the one you're working on for the second window. The first (main) window will remain to have the locally installed, prior version installed and enabled until an update is available.
-
-## Publishing
-
-1. Bump version number in `package.json`
-
-2. After git push, a build starts automatically. Publishing to marketplace requires manual approval in [Jenkins](https://jenkins.korekontrol.net/job/vscode-saltstack-publish/lastSuccessfulBuild/console)
+- zusätzliche oder bessere Snippets
+- Verbesserungen an der Jinja-/SLS-Grammatik
+- Tests und Validierung
+- spätere IntelliSense-/Hover-/Validation-Features
 
 ## Credits
+
 Created by [Marek Obuchowicz](https://github.com/marek-obuchowicz) from [KoreKontrol](https://www.korekontrol.eu/).
 
 Many thanks to William Holroyd, Ross Neufeld and Christian McHugh.
 
 ## License
+
 [MIT](LICENSE)

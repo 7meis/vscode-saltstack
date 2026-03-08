@@ -3,6 +3,7 @@
 		"prefix": "cmd.call:",
 		"body": [
 			"cmd.call:",
+			"  - name: ${1:test.ping}",
 			"$0"
 		],
 		"description": "cmd.call:"
@@ -19,6 +20,8 @@
 		"prefix": "cmd.run:",
 		"body": [
 			"cmd.run:",
+			"  - name: ${1:echo hello}",
+			"  - cwd: ${2:/tmp}",
 			"$0"
 		],
 		"description": "cmd.run:"
@@ -27,6 +30,8 @@
 		"prefix": "cmd.script:",
 		"body": [
 			"cmd.script:",
+			"  - name: ${1:/tmp/script.sh}",
+			"  - source: ${2:salt://scripts/script.sh}",
 			"$0"
 		],
 		"description": "cmd.script:"
@@ -35,6 +40,7 @@
 		"prefix": "cmd.wait:",
 		"body": [
 			"cmd.wait:",
+			"  - name: ${1:systemctl reload nginx}",
 			"$0"
 		],
 		"description": "cmd.wait:"
@@ -43,6 +49,7 @@
 		"prefix": "cmd.wait_call:",
 		"body": [
 			"cmd.wait_call:",
+			"  - name: ${1:test.ping}",
 			"$0"
 		],
 		"description": "cmd.wait_call:"
@@ -51,6 +58,8 @@
 		"prefix": "cmd.wait_script:",
 		"body": [
 			"cmd.wait_script:",
+			"  - name: ${1:/tmp/script.sh}",
+			"  - source: ${2:salt://scripts/script.sh}",
 			"$0"
 		],
 		"description": "cmd.wait_script:"
@@ -59,6 +68,7 @@
 		"prefix": "cmd.watch:",
 		"body": [
 			"cmd.watch:",
+			"  - name: ${1:systemctl reload nginx}",
 			"$0"
 		],
 		"description": "cmd.watch:"

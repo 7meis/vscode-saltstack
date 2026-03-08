@@ -1,3 +1,12 @@
+## Unreleased
+
+* Fix Saltcheck language registration so `.tst` files use their own language id and snippets load correctly
+* Add local validation and packaging scripts
+* Modernize build, launch, and README documentation
+* Improve Jinja language configuration and grammar rules
+* Improve several high-value Salt snippets for local authoring
+
+
 ## 0.0.9 - 19th October, 2021
 
 * [Roald Nefs (@roaldnefs)](https://github.com/roaldnefs)

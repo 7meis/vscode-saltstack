@@ -3,6 +3,7 @@
 		"prefix": "group.absent:",
 		"body": [
 			"group.absent:",
+			"  - name: ${1:groupname}",
 			"$0"
 		],
 		"description": "group.absent:"
@@ -11,6 +12,8 @@
 		"prefix": "group.present:",
 		"body": [
 			"group.present:",
+			"  - name: ${1:groupname}",
+			"  - gid: ${2:1001}",
 			"$0"
 		],
 		"description": "group.present:"

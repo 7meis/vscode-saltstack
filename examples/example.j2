@@ -1,0 +1,9 @@
+{% set service_name = "nginx" %}
+
+{% if grains.os_family == "Debian" %}
+package_name={{ service_name }}
+{% else %}
+package_name=httpd
+{% endif %}
+
+home={{ salt['pillar.get']('app:home', '/srv/app') }}

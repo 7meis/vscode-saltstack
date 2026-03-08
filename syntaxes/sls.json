@@ -1,10 +1,25 @@
 {
         "name": "sls",
         "scopeName": "text.yaml.jinja",
-        "comment": "Jinja Template Engine in YAML",
+	        "comment": "Salt SLS and Saltcheck in YAML with Jinja",
         "fileTypes": [ "sls" ],
-        "firstLineMatch": "^{% extends [\"'][^\"']+[\"'] %}",
+	        "firstLineMatch": "^(#!py\\b|{% extends [\"'][^\"']+[\"'] %})",
         "patterns": [
+	                {
+	                        "begin": "\\A(#!py\\b.*$)",
+	                        "beginCaptures": {
+	                                "1": {
+	                                        "name": "comment.line.number-sign.python"
+	                                }
+	                        },
+	                        "end": "\\z",
+	                        "contentName": "source.python",
+	                        "patterns": [
+	                                {
+	                                        "include": "source.python"
+	                                }
+	                        ]
+	                },
                 {
                         "include": "source.jinja"
                 },
