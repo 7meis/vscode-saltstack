@@ -1,6 +1,6 @@
 # SaltStack extension for Visual Studio Code
 
-This extension adds syntax highlighting and snippet support for SaltStack SLS files, Saltcheck tests, and standalone Jinja templates in VS Code.
+This extension adds syntax highlighting, hover documentation, and snippet support for SaltStack SLS files, Saltcheck tests, and standalone Jinja templates in VS Code.
 
 ![IDE](https://raw.githubusercontent.com/korekontrol/vscode-saltstack/master/example.png)
 
@@ -9,6 +9,7 @@ This extension adds syntax highlighting and snippet support for SaltStack SLS fi
 - syntax highlighting for Salt SLS (`.sls`)
 - syntax highlighting for Saltcheck (`.tst`)
 - syntax highlighting for Jinja templates (`.jinja`, `.j2`)
+- hover documentation for Salt state functions, sourced from local Salt Python APIs
 - Salt state snippets for common modules and functions
 - Saltcheck snippets via the `sctest` prefix
 - Jinja-aware bracket and comment configuration
@@ -32,6 +33,19 @@ Examples:
 - `test.` suggests available `test.*` state functions
 - `file.managed:` inserts a more complete managed-file skeleton
 - `service.running:` inserts a service state skeleton
+
+### Hover documentation
+
+In a `.sls` or `.tst` file, hover over a Salt state such as `file.managed` or `service.running` to see its docstring and arguments.
+
+The hover data is loaded from the local Salt Python installation on first use and cached by the extension.
+
+If needed, you can configure the source via VS Code settings:
+
+- `saltstack.hover.pythonPath`
+- `saltstack.hover.configPath`
+- `saltstack.hover.localMode`
+- `saltstack.hover.docsStrategy`
 
 ### Saltcheck snippets
 
@@ -59,6 +73,7 @@ Mit den Dateien in `examples/` kannst du schnell prüfen, ob die Extension korre
 1. `examples/example.sls`
    - Sprache sollte als SaltStack/SLS erkannt werden
    - `file.managed:` und `service.running:` sollten gute Snippets anbieten
+   - Hover auf `file.managed` sollte Salt-Dokumentation anzeigen
 2. `examples/example.tst`
    - Sprache sollte als Saltcheck erkannt werden
    - `sctest` sollte Saltcheck-Vorlagen anbieten
@@ -115,6 +130,10 @@ npm run validate
 `generate_snippets.py` kann neue Salt-State-Funktionen in Snippet-Dateien übernehmen. Dafür wird eine funktionierende lokale Salt-Umgebung benötigt.
 
 Der Generator ergänzt fehlende State-Funktionen, ohne bereits manuell verbesserte Snippets zu überschreiben.
+
+## Hover-Doku aktualisieren
+
+Die Hover-Dokumentation wird zur Laufzeit aus den lokalen Salt-Python-Modulen geladen. Falls nötig, kannst du den Python-Interpreter oder die Salt-Konfiguration über die `saltstack.hover.*`-Settings anpassen.
 
 ## CI / Publishing
 

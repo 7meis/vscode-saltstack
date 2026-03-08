@@ -35,6 +35,13 @@ function listJsonFiles(relativeDir) {
     .sort();
 }
 
+function ensurePackaged(fileEntry, label) {
+	const files = packageJson.files ?? [];
+	if (!files.includes(fileEntry)) {
+		errors.push(`${label} must be included in package.json files: ${fileEntry}`);
+	}
+}
+
 const packageJson = readJson('package.json');
 
 if (!packageJson) {
@@ -45,7 +52,20 @@ const contributes = packageJson.contributes ?? {};
 const languages = contributes.languages ?? [];
 const grammars = contributes.grammars ?? [];
 const snippets = contributes.snippets ?? [];
+const activationEvents = packageJson.activationEvents ?? [];
 const slsGrammar = readJson('syntaxes/sls.json');
+
+if (packageJson.main) {
+	const mainPath = packageJson.main.replace(/^\.\//, '');
+	ensureFile(mainPath, 'Extension entry point');
+	ensurePackaged(mainPath, 'Extension entry point');
+	if (!activationEvents.includes('onLanguage:sls')) {
+		errors.push('Runtime extension must activate on the sls language');
+	}
+	ensurePackaged('lib/**', 'Hover helper library');
+	ensurePackaged('generate_snippets.py', 'Shared Salt Python helper');
+	ensurePackaged('scripts/export_state_hover_docs.py', 'Salt hover doc export helper');
+}
 
 const languageIds = new Set();
 for (const language of languages) {

@@ -1,6 +1,6 @@
 {
 	"name": "saltstack",
-	"version": "0.1.1",
+	"version": "0.1.3",
 	"publisher": "korekontrol",
 	"author": {
 		"name": "Simon Meister"
@@ -29,6 +29,11 @@
 		"Programming Languages",
 		"Snippets"
 	],
+	"main": "./extension.js",
+	"activationEvents": [
+		"onLanguage:sls",
+		"onLanguage:saltcheck"
+	],
 	"engines": {
 		"vscode": "^1.74.0"
 	},
@@ -37,7 +42,11 @@
 		"LICENSE",
 		"README.md",
 		"icon.png",
+		"extension.js",
+		"generate_snippets.py",
 		"jinja.configuration.json",
+		"lib/**",
+		"scripts/export_state_hover_docs.py",
 		"syntaxes/**",
 		"snippets/**"
 	],
@@ -48,6 +57,46 @@
 		"package:ci": "npm run validate && npx --yes @vscode/vsce package"
 	},
 	"contributes": {
+		"configuration": {
+			"title": "SaltStack",
+			"properties": {
+				"saltstack.hover.enabled": {
+					"type": "boolean",
+					"default": true,
+					"description": "Enable hover documentation for Salt state functions."
+				},
+				"saltstack.hover.pythonPath": {
+					"type": "string",
+					"default": "python3",
+					"description": "Python executable used to load Salt modules for hover documentation."
+				},
+				"saltstack.hover.configPath": {
+					"type": "string",
+					"default": "/etc/salt/minion",
+					"description": "Path to the Salt minion config used for Salt hover documentation."
+				},
+				"saltstack.hover.localMode": {
+					"type": "boolean",
+					"default": false,
+					"description": "Use file_client=local while querying Salt state documentation."
+				},
+				"saltstack.hover.docsStrategy": {
+					"type": "string",
+					"enum": [
+						"auto",
+						"baredoc",
+						"sys"
+					],
+					"default": "auto",
+					"description": "How Salt state documentation should be queried for hover support."
+				},
+				"saltstack.hover.docsVersion": {
+					"type": "string",
+					"default": "latest",
+					"description": "Salt documentation version used for links shown in hover popups."
+				}
+			}
+		},
 		"languages": [
 			{
 				"id": "sls",
