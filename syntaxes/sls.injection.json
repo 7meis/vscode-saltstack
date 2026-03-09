@@ -1,0 +1,9 @@
+{
+	"scopeName": "text.yaml.jinja.injection",
+	"injectionSelector": "L:source.yaml",
+	"patterns": [
+		{
+			"include": "source.jinja"
+		}
+	]
+}

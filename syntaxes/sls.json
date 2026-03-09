@@ -3,7 +3,7 @@
         "scopeName": "text.yaml.jinja",
 	        "comment": "Salt SLS and Saltcheck in YAML with Jinja",
         "fileTypes": [ "sls" ],
-	        "firstLineMatch": "^(#!py\\b|{% extends [\"'][^\"']+[\"'] %})",
+	        "firstLineMatch": "^#!py\\b",
         "patterns": [
 	                {
 	                        "begin": "\\A(#!py\\b.*$)",
@@ -19,10 +19,50 @@
 	                                        "include": "source.python"
 	                                }
 	                        ]
+		                },
+		                {
+		                        "begin": "\\A(#!php\\b.*$)",
+		                        "beginCaptures": {
+		                                "1": {
+		                                        "name": "comment.line.number-sign.php"
+		                                }
+		                        },
+		                        "end": "\\z",
+		                        "contentName": "source.php",
+		                        "patterns": [
+		                                {
+		                                        "include": "source.php"
+		                                }
+		                        ]
+		                },
+		                {
+		                        "begin": "\\A(#!bash\\b.*$)",
+		                        "beginCaptures": {
+		                                "1": {
+		                                        "name": "comment.line.number-sign.shell"
+		                                }
+		                        },
+		                        "end": "\\z",
+		                        "contentName": "source.shell",
+		                        "patterns": [
+		                                {
+		                                        "include": "source.shell"
+		                                }
+		                        ]
 	                },
-                {
-                        "include": "source.jinja"
-                },
+	                {
+	                        "begin": "^\\s*(?=\\{[%#])",
+	                        "end": "$",
+	                        "patterns": [
+	                                {
+	                                        "include": "source.jinja"
+	                                },
+	                                {
+	                                        "match": "#.*$",
+	                                        "name": "comment.line.number-sign.yaml"
+	                                }
+	                        ]
+	                },
                 {
                         "include": "source.yaml"
                 }

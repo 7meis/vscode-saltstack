@@ -86,9 +86,13 @@ for (const language of languages) {
 }
 
 for (const grammar of grammars) {
-  if (!languageIds.has(grammar.language)) {
-    errors.push(`Grammar references unknown language id: ${grammar.language}`);
-  }
+	  if (grammar.language) {
+	    if (!languageIds.has(grammar.language)) {
+	      errors.push(`Grammar references unknown language id: ${grammar.language}`);
+	    }
+	  } else if (!Array.isArray(grammar.injectTo) || grammar.injectTo.length === 0) {
+	    errors.push(`Injection grammar must declare injectTo: ${grammar.path}`);
+	  }
   const grammarPath = grammar.path.replace(/^\.\//, '');
   if (ensureFile(grammarPath, `Grammar for ${grammar.language}`)) {
     readJson(grammarPath);
@@ -99,6 +103,12 @@ for (const languageId of ['sls', 'saltcheck']) {
   const grammar = grammars.find((entry) => entry.language === languageId);
   if (grammar?.embeddedLanguages?.['source.python'] !== 'python') {
     errors.push(`Grammar contribution for ${languageId} must map embedded source.python to the python language id`);
+  }
+  if (grammar?.embeddedLanguages?.['source.php'] !== 'php') {
+    errors.push(`Grammar contribution for ${languageId} must map embedded source.php to the php language id`);
+  }
+  if (grammar?.embeddedLanguages?.['source.shell'] !== 'shellscript') {
+    errors.push(`Grammar contribution for ${languageId} must map embedded source.shell to the shellscript language id`);
   }
 }
 
@@ -137,6 +147,53 @@ if (snippetPaths.get('snippets/saltcheck.json') !== 'saltcheck') {
 }
 
 const shebangPythonPattern = slsGrammar?.patterns?.find((pattern) => pattern.begin === '\\A(#!py\\b.*$)');
+const shebangPhpPattern = slsGrammar?.patterns?.find((pattern) => pattern.begin === '\\A(#!php\\b.*$)');
+const shebangBashPattern = slsGrammar?.patterns?.find((pattern) => pattern.begin === '\\A(#!bash\\b.*$)');
+const slsRootJinjaLinePattern = slsGrammar?.patterns?.find((pattern) => pattern.begin === '^\\s*(?=\\{[%#])');
+const includesYaml = slsGrammar?.patterns?.some((pattern) => pattern.include === 'source.yaml');
+const includesJinjaDirectly = slsGrammar?.patterns?.some((pattern) => pattern.include === 'source.jinja');
+const slsInjectionContribution = grammars.find((grammar) => grammar.path === './syntaxes/sls.injection.json');
+const slsInjectionGrammar = readJson('syntaxes/sls.injection.json');
+
+if (slsGrammar?.firstLineMatch && slsGrammar.firstLineMatch !== '^#!py\\b') {
+	errors.push('syntaxes/sls.json firstLineMatch must only special-case #!py at the start of the file');
+}
+
+if (!includesYaml) {
+	errors.push('syntaxes/sls.json must include source.yaml');
+}
+
+if (includesJinjaDirectly) {
+	errors.push('syntaxes/sls.json must not include source.jinja directly; use the SLS injection grammar instead');
+}
+
+if (!slsRootJinjaLinePattern) {
+	errors.push('syntaxes/sls.json must protect full-line Jinja tags/comments before source.yaml');
+	} else {
+	if (slsRootJinjaLinePattern.end !== '$') {
+		errors.push('The full-line Jinja rule in syntaxes/sls.json must extend to end of line');
+	}
+	const includesInjectedJinja = slsRootJinjaLinePattern.patterns?.some((pattern) => pattern.include === 'source.jinja');
+	if (!includesInjectedJinja) {
+		errors.push('The full-line Jinja rule in syntaxes/sls.json must include source.jinja');
+	}
+}
+
+if (!slsInjectionContribution) {
+	errors.push('package.json must contribute ./syntaxes/sls.injection.json as an injection grammar');
+} else {
+	if (slsInjectionContribution.scopeName !== 'text.yaml.jinja.injection') {
+		errors.push('The SLS injection grammar must use the scopeName text.yaml.jinja.injection');
+	}
+	if (!slsInjectionContribution.injectTo?.includes('text.yaml.jinja')) {
+		errors.push('The SLS injection grammar must inject into text.yaml.jinja');
+	}
+}
+
+if (slsInjectionGrammar?.injectionSelector !== 'L:source.yaml') {
+	errors.push('syntaxes/sls.injection.json must inject into source.yaml for inline Jinja');
+}
+
 if (!shebangPythonPattern) {
   errors.push('syntaxes/sls.json must detect #!py at the start of the file');
 } else {
@@ -146,6 +203,36 @@ if (!shebangPythonPattern) {
   const includesPython = shebangPythonPattern.patterns?.some((pattern) => pattern.include === 'source.python');
   if (!includesPython) {
     errors.push('The #!py Python renderer rule in syntaxes/sls.json must include source.python');
+  }
+}
+
+if (!shebangPhpPattern) {
+  errors.push('syntaxes/sls.json must detect #!php at the start of the file');
+} else {
+  if (shebangPhpPattern.end !== '\\z') {
+    errors.push('The #!php PHP renderer rule in syntaxes/sls.json must extend to the end of the file');
+  }
+  if (shebangPhpPattern.contentName !== 'source.php') {
+    errors.push('The #!php PHP renderer rule in syntaxes/sls.json must set contentName to source.php');
+  }
+  const includesPhp = shebangPhpPattern.patterns?.some((pattern) => pattern.include === 'source.php');
+  if (!includesPhp) {
+    errors.push('The #!php PHP renderer rule in syntaxes/sls.json must include source.php');
+  }
+}
+
+if (!shebangBashPattern) {
+  errors.push('syntaxes/sls.json must detect #!bash at the start of the file');
+} else {
+  if (shebangBashPattern.end !== '\\z') {
+    errors.push('The #!bash Bash renderer rule in syntaxes/sls.json must extend to the end of the file');
+  }
+  if (shebangBashPattern.contentName !== 'source.shell') {
+    errors.push('The #!bash Bash renderer rule in syntaxes/sls.json must set contentName to source.shell');
+  }
+  const includesShell = shebangBashPattern.patterns?.some((pattern) => pattern.include === 'source.shell');
+  if (!includesShell) {
+    errors.push('The #!bash Bash renderer rule in syntaxes/sls.json must include source.shell');
   }
 }
 
