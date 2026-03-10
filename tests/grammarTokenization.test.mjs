@@ -184,6 +184,105 @@ test('full smoke example with multiple leading comments and if-else block remain
   assert.ok(lineHasScope(lines[18], 'jinja'));
 });
 
+test('single-quoted inline jinja with nested quotes does not break later YAML or Jinja scopes', async () => {
+  const lines = await tokenize('text.yaml.jinja', [
+    'nextcloud_cron_job:',
+    '  cron.present:',
+    '    - name: docker exec -u www-data {{ nc_project }}-app-1 php /var/www/html/cron.php',
+    '',
+    'deploy_npm_config_script:',
+    '  file.managed:',
+    '    - context:',
+    "        npm_admin_email: '{{ NPM_ADMIN_EMAIL }}'",
+    "        npm_admin_password: '{{ NPM_ADMIN_PASSWORD | replace(\"'\", \"''\") }}'",
+    "        nextcloud_domain: '{{ NEXTCLOUD_URL_DOMAIN }}'",
+    '',
+    'wait_for_npm_api:',
+    '  cmd.run:',
+    '    - require:',
+    '      - file: deploy_npm_config_script',
+    'after_block:',
+    '  test.nop:',
+    '    - name: {{ still_active }}',
+  ]);
+
+  assert.ok(lineHasScope(lines[2], 'jinja'));
+  assert.ok(lineHasScope(lines[7], 'jinja'));
+  assert.ok(lineHasScope(lines[8], 'jinja'));
+  assert.ok(lineHasScope(lines[9], 'jinja'));
+  assert.ok(lineHasScope(lines[7], 'entity.name.tag.yaml'));
+  assert.ok(lineHasScope(lines[8], 'entity.name.tag.yaml'));
+
+  assert.equal(lineHasScope(lines[11], 'source.jinja'), false);
+  assert.equal(lineHasScope(lines[11], 'string.quoted.single.yaml'), false);
+  assert.equal(lineHasScope(lines[12], 'string.quoted.single.yaml'), false);
+  assert.ok(lines[11].length > 0);
+  assert.ok(lines[12].length > 0);
+
+  assert.equal(lineHasScope(lines[15], 'source.jinja'), false);
+  assert.ok(lines[15].length > 0);
+  assert.ok(lineHasScope(lines[17], 'jinja'));
+});
+
+test('unquoted inline jinja values after quoted jinja values remain stable', async () => {
+  const lines = await tokenize('text.yaml.jinja', [
+    'deploy_npm_config_script:',
+    '  file.managed:',
+    '    - context:',
+    "        npm_admin_password: '{{ NPM_ADMIN_PASSWORD | replace(\"'\", \"''\") }}'",
+    '        npm_forward_port: {{ NPM_FORWARD_PORT }}',
+    "        npm_forward_scheme: '{{ NPM_FORWARD_SCHEME }}'",
+    'wait_for_npm_api:',
+    '  cmd.run:',
+    '    - require:',
+    '      - file: deploy_npm_config_script',
+    'after_block:',
+    '  test.nop:',
+    '    - name: {{ still_active }}',
+  ]);
+
+  assert.ok(lineHasScope(lines[3], 'jinja'));
+  assert.ok(lineHasScope(lines[4], 'jinja'));
+  assert.equal(lineHasScope(lines[4], 'string.quoted.single.yaml'), false);
+  assert.ok(lineHasScope(lines[5], 'jinja'));
+  assert.ok(lineHasScope(lines[3], 'entity.name.tag.yaml'));
+  assert.ok(lineHasScope(lines[4], 'entity.name.tag.yaml'));
+
+  assert.equal(lineHasScope(lines[6], 'source.jinja'), false);
+  assert.equal(lineHasScope(lines[6], 'string.quoted.single.yaml'), false);
+  assert.equal(lineHasScope(lines[7], 'string.quoted.single.yaml'), false);
+  assert.ok(lines[6].length > 0);
+  assert.ok(lines[7].length > 0);
+
+  assert.equal(lineHasScope(lines[10], 'source.jinja'), false);
+  assert.ok(lines[10].length > 0);
+  assert.ok(lineHasScope(lines[12], 'jinja'));
+});
+
+test('inline jinja values under a jinja-generated state id keep YAML key scopes', async () => {
+  const lines = await tokenize('text.yaml.jinja', [
+    '{% for dir in directories %}',
+    '{{ dir.path }}:',
+    '  file.directory:',
+    '    - user: {{ dir.user }}',
+    '    - group: {{ dir.group }}',
+    '    - dir_mode: {{ dir.mode }}',
+    '    - makedirs: True',
+    '{% endfor %}',
+  ]);
+
+  assert.ok(lineHasScope(lines[0], 'jinja'));
+  assert.ok(lineHasScope(lines[1], 'jinja'));
+  assert.ok(lineHasScope(lines[3], 'entity.name.tag.yaml'));
+  assert.ok(lineHasScope(lines[4], 'entity.name.tag.yaml'));
+  assert.ok(lineHasScope(lines[5], 'entity.name.tag.yaml'));
+  assert.ok(lineHasScope(lines[3], 'jinja'));
+  assert.ok(lineHasScope(lines[4], 'jinja'));
+  assert.ok(lineHasScope(lines[5], 'jinja'));
+  assert.ok(lineHasScope(lines[6], 'entity.name.tag.yaml'));
+  assert.ok(lineHasScope(lines[7], 'jinja'));
+});
+
 test('many leading YAML comments with Jinja-like text do not destabilize later blocks', async () => {
   const lines = await tokenize('text.yaml.jinja', [
     '# first comment',

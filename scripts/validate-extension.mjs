@@ -156,6 +156,8 @@ const shebangPhpPattern = slsGrammar?.patterns?.find((pattern) => pattern.begin 
 const shebangBashPattern = slsGrammar?.patterns?.find((pattern) => pattern.begin === '\\A(#!bash\\b.*$)');
 const slsRootCommentPattern = slsGrammar?.patterns?.find((pattern) => pattern.match === '^\\s*#.*$');
 const slsRootJinjaLinePattern = slsGrammar?.patterns?.find((pattern) => pattern.begin === '^\\s*(?=\\{[%#])');
+const slsUnquotedInlineJinjaPattern = slsGrammar?.patterns?.find((pattern) => pattern.begin === '^([ \\t-]*[^:\\n][^:\\n]*:\\s*)(?=\\{\\{)');
+const slsSingleQuotedInlineJinjaPattern = slsGrammar?.patterns?.find((pattern) => pattern.begin === "^([ \\t-]*[^:\\n][^:\\n]*:\\s*)(')(?=\\{[{%#])");
 const includesYaml = slsGrammar?.patterns?.some((pattern) => pattern.include === 'source.yaml');
 const includesJinjaDirectly = slsGrammar?.patterns?.some((pattern) => pattern.include === 'source.jinja');
 const slsInjectionContribution = grammars.find((grammar) => grammar.path === './syntaxes/sls.injection.json');
@@ -189,6 +191,33 @@ if (!slsRootJinjaLinePattern) {
 	const includesInjectedJinja = slsRootJinjaLinePattern.patterns?.some((pattern) => pattern.include === 'source.jinja');
 	if (!includesInjectedJinja) {
 		errors.push('The full-line Jinja rule in syntaxes/sls.json must include source.jinja');
+	}
+}
+
+if (!slsSingleQuotedInlineJinjaPattern) {
+	errors.push('syntaxes/sls.json must protect single-quoted YAML values that start with inline Jinja before source.yaml');
+} else {
+	if (slsSingleQuotedInlineJinjaPattern.end !== "'(?=\\s*(#.*)?$)") {
+		errors.push('The single-quoted inline Jinja rule in syntaxes/sls.json must close on the final quote at end of line');
+	}
+	if (slsSingleQuotedInlineJinjaPattern.contentName !== 'string.quoted.single.yaml') {
+		errors.push('The single-quoted inline Jinja rule in syntaxes/sls.json must retain YAML single-quoted string scope');
+	}
+	const singleQuotedLineIncludesJinja = slsSingleQuotedInlineJinjaPattern.patterns?.some((pattern) => pattern.include === 'source.jinja');
+	if (!singleQuotedLineIncludesJinja) {
+		errors.push('The single-quoted inline Jinja rule in syntaxes/sls.json must include source.jinja');
+	}
+}
+
+if (!slsUnquotedInlineJinjaPattern) {
+	errors.push('syntaxes/sls.json must protect unquoted YAML values that start with inline Jinja before source.yaml');
+} else {
+	if (slsUnquotedInlineJinjaPattern.end !== '$') {
+		errors.push('The unquoted inline Jinja rule in syntaxes/sls.json must extend to end of line');
+	}
+	const unquotedLineIncludesJinja = slsUnquotedInlineJinjaPattern.patterns?.some((pattern) => pattern.include === 'source.jinja');
+	if (!unquotedLineIncludesJinja) {
+		errors.push('The unquoted inline Jinja rule in syntaxes/sls.json must include source.jinja');
 	}
 }
 

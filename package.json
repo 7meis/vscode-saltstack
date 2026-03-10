@@ -1,6 +1,6 @@
 {
 	"name": "saltstack",
-	"version": "0.1.3",
+	"version": "0.1.16",
 	"publisher": "korekontrol",
 	"author": {
 		"name": "Simon Meister"
@@ -52,7 +52,8 @@
 	],
 	"scripts": {
 		"validate": "node ./scripts/validate-extension.mjs",
-		"test": "npm run validate",
+		"test:node": "node --test tests/*.test.mjs",
+		"test": "npm run validate && npm run test:node",
 		"package:local": "npx --yes @vscode/vsce package",
 		"package:ci": "npm run validate && npx --yes @vscode/vsce package"
 	},
@@ -97,6 +98,26 @@
 				}
 			}
 		},
+			"keybindings": [
+				{
+					"command": "editor.action.triggerSuggest",
+					"key": "ctrl+space",
+					"mac": "cmd+shift+space",
+					"when": "editorTextFocus && !editorReadonly && editorLangId == sls"
+				},
+				{
+					"command": "editor.action.triggerSuggest",
+					"key": "ctrl+space",
+					"mac": "cmd+shift+space",
+					"when": "editorTextFocus && !editorReadonly && editorLangId == saltcheck"
+				},
+				{
+					"command": "editor.action.triggerSuggest",
+					"key": "ctrl+space",
+					"mac": "cmd+shift+space",
+					"when": "editorTextFocus && !editorReadonly && editorLangId == jinja"
+				}
+			],
 		"languages": [
 			{
 				"id": "sls",
@@ -141,12 +162,22 @@
 				"scopeName": "source.jinja",
 				"path": "./syntaxes/jinja.json"
 			},
+				{
+					"scopeName": "text.yaml.jinja.injection",
+					"path": "./syntaxes/sls.injection.json",
+					"injectTo": [
+						"text.yaml.jinja"
+					]
+				},
 			{
 				"language": "sls",
 				"scopeName": "text.yaml.jinja",
 					"path": "./syntaxes/sls.json",
 					"embeddedLanguages": {
-						"source.python": "python"
+								"source.jinja": "jinja",
+							"source.python": "python",
+							"source.php": "php",
+							"source.shell": "shellscript"
 					}
 				},
 				{
@@ -154,7 +185,10 @@
 					"scopeName": "text.yaml.jinja",
 						"path": "./syntaxes/sls.json",
 						"embeddedLanguages": {
-							"source.python": "python"
+									"source.jinja": "jinja",
+								"source.python": "python",
+								"source.php": "php",
+								"source.shell": "shellscript"
 						}
 			}
 		],

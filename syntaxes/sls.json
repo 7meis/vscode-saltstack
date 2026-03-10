@@ -64,6 +64,43 @@
 	                        ]
 	                },
 	                {
+	                        "begin": "^([ \\t-]*[^:\\n][^:\\n]*:\\s*)(?=\\{\\{)",
+	                        "beginCaptures": {
+	                                "1": {
+	                                        "name": "meta.map.key.yaml entity.name.tag.yaml"
+	                                }
+	                        },
+	                        "end": "$",
+	                        "patterns": [
+	                                {
+	                                        "include": "source.jinja"
+	                                }
+	                        ]
+	                },
+	                {
+	                        "begin": "^([ \\t-]*[^:\\n][^:\\n]*:\\s*)(')(?=\\{[{%#])",
+	                        "beginCaptures": {
+	                                "1": {
+	                                        "name": "meta.map.key.yaml entity.name.tag.yaml"
+	                                },
+	                                "2": {
+	                                        "name": "punctuation.definition.string.begin.yaml"
+	                                }
+	                        },
+	                        "end": "'(?=\\s*(#.*)?$)",
+	                        "endCaptures": {
+	                                "0": {
+	                                        "name": "punctuation.definition.string.end.yaml"
+	                                }
+	                        },
+	                        "contentName": "string.quoted.single.yaml",
+	                        "patterns": [
+	                                {
+	                                        "include": "source.jinja"
+	                                }
+	                        ]
+	                },
+	                {
 	                        "match": "^\\s*#.*$",
 	                        "name": "comment.line.number-sign.yaml"
 	                },
