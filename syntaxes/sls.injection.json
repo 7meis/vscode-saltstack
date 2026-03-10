@@ -1,7 +1,24 @@
 {
 	"scopeName": "text.yaml.jinja.injection",
-	"injectionSelector": "L:source.yaml",
+	"injectionSelector": "L:source.yaml -comment",
 	"patterns": [
+		{
+			"match": "^\\s*#.*$",
+			"name": "comment.line.number-sign.yaml"
+		},
+		{
+			"begin": "^\\s*(?=\\{[%#])",
+			"end": "$",
+			"patterns": [
+				{
+					"include": "source.jinja"
+				},
+				{
+					"match": "#.*$",
+					"name": "comment.line.number-sign.yaml"
+				}
+			]
+		},
 		{
 			"include": "source.jinja"
 		}

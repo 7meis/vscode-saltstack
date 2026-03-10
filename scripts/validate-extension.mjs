@@ -48,6 +48,8 @@ if (!packageJson) {
   process.exit(1);
 }
 
+ensureFile('tests/grammarTokenization.test.mjs', 'Grammar regression test');
+
 const contributes = packageJson.contributes ?? {};
 const languages = contributes.languages ?? [];
 const grammars = contributes.grammars ?? [];
@@ -101,6 +103,9 @@ for (const grammar of grammars) {
 
 for (const languageId of ['sls', 'saltcheck']) {
   const grammar = grammars.find((entry) => entry.language === languageId);
+  if (grammar?.embeddedLanguages?.['source.jinja'] !== 'jinja') {
+    errors.push(`Grammar contribution for ${languageId} must map embedded source.jinja to the jinja language id`);
+  }
   if (grammar?.embeddedLanguages?.['source.python'] !== 'python') {
     errors.push(`Grammar contribution for ${languageId} must map embedded source.python to the python language id`);
   }
@@ -149,11 +154,15 @@ if (snippetPaths.get('snippets/saltcheck.json') !== 'saltcheck') {
 const shebangPythonPattern = slsGrammar?.patterns?.find((pattern) => pattern.begin === '\\A(#!py\\b.*$)');
 const shebangPhpPattern = slsGrammar?.patterns?.find((pattern) => pattern.begin === '\\A(#!php\\b.*$)');
 const shebangBashPattern = slsGrammar?.patterns?.find((pattern) => pattern.begin === '\\A(#!bash\\b.*$)');
+const slsRootCommentPattern = slsGrammar?.patterns?.find((pattern) => pattern.match === '^\\s*#.*$');
 const slsRootJinjaLinePattern = slsGrammar?.patterns?.find((pattern) => pattern.begin === '^\\s*(?=\\{[%#])');
 const includesYaml = slsGrammar?.patterns?.some((pattern) => pattern.include === 'source.yaml');
 const includesJinjaDirectly = slsGrammar?.patterns?.some((pattern) => pattern.include === 'source.jinja');
 const slsInjectionContribution = grammars.find((grammar) => grammar.path === './syntaxes/sls.injection.json');
 const slsInjectionGrammar = readJson('syntaxes/sls.injection.json');
+const slsInjectionCommentPattern = slsInjectionGrammar?.patterns?.find((pattern) => pattern.match === '^\\s*#.*$');
+const slsInjectionJinjaLinePattern = slsInjectionGrammar?.patterns?.find((pattern) => pattern.begin === '^\\s*(?=\\{[%#])');
+const slsInjectionIncludesJinja = slsInjectionGrammar?.patterns?.some((pattern) => pattern.include === 'source.jinja');
 
 if (slsGrammar?.firstLineMatch && slsGrammar.firstLineMatch !== '^#!py\\b') {
 	errors.push('syntaxes/sls.json firstLineMatch must only special-case #!py at the start of the file');
@@ -161,6 +170,10 @@ if (slsGrammar?.firstLineMatch && slsGrammar.firstLineMatch !== '^#!py\\b') {
 
 if (!includesYaml) {
 	errors.push('syntaxes/sls.json must include source.yaml');
+}
+
+if (!slsRootCommentPattern || slsRootCommentPattern.name !== 'comment.line.number-sign.yaml') {
+	errors.push('syntaxes/sls.json must explicitly protect root YAML comment lines before source.yaml');
 }
 
 if (includesJinjaDirectly) {
@@ -190,8 +203,34 @@ if (!slsInjectionContribution) {
 	}
 }
 
-if (slsInjectionGrammar?.injectionSelector !== 'L:source.yaml') {
-	errors.push('syntaxes/sls.injection.json must inject into source.yaml for inline Jinja');
+if (slsInjectionGrammar?.injectionSelector !== 'L:source.yaml -comment') {
+	errors.push('syntaxes/sls.injection.json must inject into source.yaml while excluding comment scopes');
+}
+
+if (!slsInjectionCommentPattern || slsInjectionCommentPattern.name !== 'comment.line.number-sign.yaml') {
+	errors.push('syntaxes/sls.injection.json must explicitly protect YAML comment lines before inline Jinja injection');
+}
+
+const testScript = packageJson.scripts?.test ?? '';
+const nodeTestScript = packageJson.scripts?.['test:node'] ?? '';
+if (!testScript.includes('npm run validate') || !testScript.includes('npm run test:node') || !nodeTestScript.includes('node --test')) {
+	errors.push('package.json test scripts must run both structural validation and Node-based regression tests');
+}
+
+if (!slsInjectionJinjaLinePattern) {
+	errors.push('syntaxes/sls.injection.json must protect full-line Jinja tags/comments inside YAML contexts');
+} else {
+	if (slsInjectionJinjaLinePattern.end !== '$') {
+		errors.push('The full-line Jinja rule in syntaxes/sls.injection.json must extend to end of line');
+	}
+	const injectionLineIncludesJinja = slsInjectionJinjaLinePattern.patterns?.some((pattern) => pattern.include === 'source.jinja');
+	if (!injectionLineIncludesJinja) {
+		errors.push('The full-line Jinja rule in syntaxes/sls.injection.json must include source.jinja');
+	}
+}
+
+if (!slsInjectionIncludesJinja) {
+	errors.push('syntaxes/sls.injection.json must include source.jinja for inline Jinja expressions in YAML');
 }
 
 if (!shebangPythonPattern) {

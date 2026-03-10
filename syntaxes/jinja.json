@@ -169,11 +169,16 @@
 				},
 				{
 					"begin": "\\[",
-					"captures": [
+						"beginCaptures": [
 						{
 							"name": "punctuation.other.jinja"
 						}
 					],
+						"endCaptures": [
+							{
+								"name": "punctuation.other.jinja"
+							}
+						],
 					"end": "\\]",
 					"patterns": [
 						{
@@ -183,11 +188,16 @@
 				},
 				{
 					"begin": "\\(",
-					"captures": [
+						"beginCaptures": [
 						{
 							"name": "punctuation.other.jinja"
 						}
 					],
+						"endCaptures": [
+							{
+								"name": "punctuation.other.jinja"
+							}
+						],
 					"end": "\\)",
 					"patterns": [
 						{
@@ -197,11 +207,16 @@
 				},
 				{
 					"begin": "\\{",
-					"captures": [
+						"beginCaptures": [
 						{
 							"name": "punctuation.other.jinja"
 						}
 					],
+						"endCaptures": [
+							{
+								"name": "punctuation.other.jinja"
+							}
+						],
 					"end": "\\}",
 					"patterns": [
 						{

@@ -1,19 +1,24 @@
-/etc/nginx/lua/check_group.lua:
-  file.managed:
-    - source: salt://templates/linux/etc/nginx/lua/check_group.lua
-    - makedirs: True
-{% set groups = ['admin', 'editor'] %}
-# Vhost Konfiguration aus Template
-nginx_vhost_config:
-  file.managed:
-    - name: /etc/nginx/sites-available/vuepress.conf
-    - source: salt://templates/linux/etc/nginx/sites-available/vuepress_oidc.j2
-    - template: jinja
-    - watch_in:
-      - service: nginx_service
+#
+{%- set package_name = salt["pillar.get"]("ntp:package", "ntp") %}
+{%- set service_name = salt["pillar.get"]("ntp:service", "ntp") %}
 
-# Symlink aktivieren
-nginx_vhost_enable:
-  file.symlink:
-    - name: /etc/nginx/sites-enabled/vuepress.conf
-    - target: /etc/nginx/sites-available/vuepress.conf
+examples.ntp.install-pkg:
+  pkg.installed:
+    - name: {{ package_name }}
+
+examples.ntp.configure:
+  file.managed:
+    - name: /etc/ntp.conf
+    - source: salt://{{ slspath }}/files/ntp.conf
+    - template: jinja
+    - user: root
+    - group: root
+    - mode: '0640'
+
+examples.ntp.enable-service:
+  service.running:
+    - name: {{ service_name }}
+    - enable: True
+    - watch_any:
+      - pkg: examples.ntp.install-pkg
+      - file: examples.ntp.configure
